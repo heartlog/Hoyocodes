@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="/Hoyocodes/manifest.json">
+<meta name="theme-color" content="#0066cc">
+<link rel="apple-touch-icon" href="/Hoyocodes/icons/icon-192x192.png">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hoyocodes !</title>
@@ -921,5 +925,19 @@
             parent.appendChild(section);
         }
     </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/Hoyocodes/sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('ServiceWorker registration failed:', error);
+                });
+        });
+    }
+</script>
+
 </body>
 </html>
