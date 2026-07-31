@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="/Hoyocodes/manifest.json">
+<meta name="theme-color" content="#0066cc">
+<link rel="apple-touch-icon" href="/Hoyocodes/icons/icon-192x192.png">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hoyocodes !</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* Light Theme - Soft Sky Blue (Default) */
             --bg-primary: #f8faff;
             --bg-secondary: #e6f0ff;
             --card-bg: rgba(255, 255, 255, 0.95);
             --text-primary: #1a2a4a;
             --text-secondary: #3a4a6a;
-            --accent-color: #0066cc;
+            --accent-color: #0066cc; /* Default Genshin Blue */
             --gold-accent: #d4a017;
             --error-color: #d73a49;
             --border-color: rgba(0, 80, 160, 0.15);
@@ -23,13 +26,12 @@
         }
 
         [data-theme="dark"] {
-            /* Dark Theme - Deep Ocean Blue */
             --bg-primary: #0a1128;
             --bg-secondary: #1a2a4a;
             --card-bg: rgba(20, 40, 70, 0.9);
             --text-primary: #e6f0ff;
             --text-secondary: #b8d4ff;
-            --accent-color: #4d9fff;
+            --accent-color: #4d9fff; /* Default Dark Blue */
             --gold-accent: #ffd700;
             --error-color: #ff6b6b;
             --border-color: rgba(100, 180, 255, 0.2);
@@ -37,6 +39,27 @@
             --header-bg: rgba(10, 30, 60, 0.8);
             --footer-bg: rgba(40, 80, 120, 0.8);
         }
+
+        [data-theme="amoled"] {
+            --bg-primary: #000000;
+            --bg-secondary: #000000;
+            --card-bg: #0a0a0a;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #66b3ff; /* Default Amoled Blue */
+            --gold-accent: #ffcc00;
+            --error-color: #ff4d4d;
+            --border-color: #222222;
+            --shadow-color: rgba(255, 255, 255, 0.05);
+            --header-bg: rgba(5, 5, 5, 0.9);
+            --footer-bg: rgba(5, 5, 5, 0.9);
+        }
+        
+        [data-theme="amoled"] .code-item { background-color: #111111; }
+        [data-theme="amoled"] .code-item:hover { background-color: #1a1a1a; box-shadow: 0 5px 15px rgba(255, 255, 255, 0.05); }
+        [data-theme="amoled"] .last-updated { background-color: #111111; }
+        [data-theme="amoled"] .modal-content { background-color: #0a0a0a; border: 1px solid #333; }
+        [data-theme="amoled"] .pref-item { background-color: #111; border-color: #333; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -47,10 +70,20 @@
             color: var(--text-primary);
             background-image: linear-gradient(160deg, var(--bg-primary), var(--bg-secondary));
             min-height: 100vh;
-            transition: all 0.4s ease;
-            position: relative; /* Needed for absolute positioning of dropdown */
+            transition: background-color 0.4s ease, color 0.4s ease;
+            position: relative;
             display: flex;
             flex-direction: column;
+        }
+
+        /* Hide Redeemed Codes CSS */
+        body.hide-redeemed .code-item.is-redeemed {
+            display: none !important;
+        }
+
+        /* Elements adapting to dynamic accent color */
+        h1 i, h2, .code::before, .tab-btn.active, .toast, .save-btn, .theme-toggle:hover, .menu-toggle:hover, .dropdown-menu a:hover, .footer-link:hover {
+            transition: color 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
         }
 
         .header-container {
@@ -69,26 +102,11 @@
             z-index: 1000;
         }
 
-        h1 {
-            color: var(--text-primary);
-            margin: 0;
-            font-size: 1.6em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        h1 { color: var(--text-primary); margin: 0; font-size: 1.6em; display: flex; align-items: center; gap: 8px; }
+        [data-theme="dark"] h1, [data-theme="amoled"] h1 { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+        .header-actions { display: flex; align-items: center; gap: 10px; }
 
-        [data-theme="dark"] h1 {
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .theme-toggle {
+        .theme-toggle, .menu-toggle {
             background: var(--footer-bg);
             border: 1px solid var(--border-color);
             border-radius: 50%;
@@ -98,108 +116,114 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s;
             box-shadow: 0 2px 8px var(--shadow-color);
         }
 
-        .theme-toggle:hover {
-            transform: scale(1.1) rotate(15deg);
+        .theme-toggle:hover, .menu-toggle:hover {
+            transform: scale(1.1);
             background: var(--accent-color);
             color: white;
         }
 
-        .menu-toggle {
-            background: var(--footer-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px var(--shadow-color);
-            position: relative;
-        }
-
-
-
         .dropdown-menu {
             position: fixed;
-            top: 55px; /* Adjusted for better positioning */
-            right: 15px;  /* Adjusted for better positioning */
+            top: 55px;
+            right: 15px;
             background: var(--card-bg);
             border-radius: 8px;
             box-shadow: 0 4px 20px var(--shadow-color);
             border: 1px solid var(--border-color);
             padding: 8px 0;
-            min-width: 160px;
-            z-index: 2000; /* Ensures it's always on top */
+            min-width: 180px;
+            z-index: 2000;
             display: none;
         }
 
-        .dropdown-menu.show {
-            display: block;
-        }
-
+        .dropdown-menu.show { display: block; }
         .dropdown-menu a {
             display: block;
             padding: 8px 16px;
             color: var(--text-primary);
             text-decoration: none;
-            transition: all 0.2s;
             font-size: 0.9em;
+            cursor: pointer;
         }
+        .dropdown-menu a:hover { background-color: var(--accent-color); color: white; }
+        .dropdown-menu i { width: 18px; text-align: center; margin-right: 8px; }
 
-        .dropdown-menu a:hover {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        .dropdown-menu i {
-            width: 18px;
-            text-align: center;
-            margin-right: 8px;
-        }
-
-        /* Top Section (About) */
         .top-section {
             background-color: var(--card-bg);
             border-radius: 12px;
-            padding: 10px 15px; /* Reduced padding */
-            margin-bottom: 15px; /* Reduced margin */
-            box-shadow: 0 2px 10px var(--shadow-color); /* Reduced shadow */
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px var(--shadow-color);
             border: 1px solid var(--border-color);
             backdrop-filter: blur(3px);
-            font-size: 0.9em; /* Reduced font size */
+            font-size: 0.9em;
+            position: relative;
+            overflow: hidden;
         }
 
-        .top-section h2 {
-            color: var(--accent-color);
-            font-size: 1.2em; /* Reduced font size */
-            margin-bottom: 8px; /* Reduced margin */
+        /* HTML Emoji Background Styles */
+        .bg-emoji {
+            position: absolute;
+            opacity: 0.15; /* Translucent effect */
+            pointer-events: none;
+            z-index: 0;
+            line-height: 1;
         }
 
-        .top-section p {
+        .emoji-large {
+            right: -20px;
+            top: -20px;
+            font-size: 8em;
+        }
+
+        .emoji-small {
+            right: 60px;
+            top: 30px;
+            font-size: 4em;
+        }
+
+        .top-section h2 { color: var(--accent-color); font-size: 1.2em; margin-bottom: 8px; position: relative; z-index: 1; }
+        .top-section p { color: var(--text-primary); line-height: 1.4; margin-bottom: 5px; position: relative; z-index: 1; }
+        .top-section a { color: var(--accent-color); text-decoration: none; font-weight: bold; position: relative; z-index: 1; }
+        .top-section a:hover { color: var(--gold-accent); text-decoration: underline; }
+
+        /* TABS UI STYLES */
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .tabs-container::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             color: var(--text-primary);
-            line-height: 1.4; /* Reduced line height */
-            margin-bottom: 5px; /* Reduced margin */
-        }
-
-        .top-section a {
-            color: var(--accent-color);
-            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
             font-weight: bold;
-            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px var(--shadow-color);
         }
 
-        .top-section a:hover {
-            color: var(--gold-accent);
-            text-decoration: underline;
-        }
+        .tab-btn:hover { background-color: var(--bg-secondary); transform: translateY(-1px); }
+        .tab-btn.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
 
-        .game-section {
+        .game-section { display: none; }
+        .game-section.active {
+            display: block;
             background-color: var(--card-bg);
             border-radius: 12px;
             padding: 20px;
@@ -207,54 +231,16 @@
             box-shadow: 0 4px 20px var(--shadow-color);
             border: 1px solid var(--border-color);
             backdrop-filter: blur(3px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.4s ease;
         }
 
-        .game-section:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px var(--shadow-color);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        h2 {
-            color: var(--accent-color);
-            margin: 0;
-            font-size: 1.8em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .toggle-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .game-section.collapsed .toggle-icon {
-            transform: rotate(-90deg);
-        }
-
-        .game-content {
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-            max-height: 2000px;
-            opacity: 1;
-            padding-top: 15px;
-        }
-
-        .game-section.collapsed .game-content {
-            max-height: 0;
-            opacity: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
+        .game-header { padding-bottom: 15px; border-bottom: 2px solid var(--border-color); margin-bottom: 15px; }
+        h2 { color: var(--accent-color); margin: 0; font-size: 1.6em; display: flex; align-items: center; gap: 10px; }
 
         .code-item {
             margin-bottom: 15px;
@@ -262,491 +248,572 @@
             background-color: rgba(230, 240, 255, 0.7);
             border-radius: 8px;
             border-left: 4px solid var(--accent-color);
-            transition: all 0.3s ease;
             position: relative;
             backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+        }
+        [data-theme="dark"] .code-item { background-color: rgba(30, 60, 100, 0.5); }
+        .code-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px var(--shadow-color); }
+
+        .code-header-container { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        
+        .code { 
+            font-weight: bold; color: var(--accent-color); font-size: 1.1em; 
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+            padding: 4px 8px; border-radius: 6px; transition: background 0.2s;
+        }
+        .code:hover { background: rgba(0, 0, 0, 0.05); text-decoration: none; }
+        [data-theme="dark"] .code:hover, [data-theme="amoled"] .code:hover { background: rgba(255, 255, 255, 0.1); }
+        
+        .code::before { content: "✦"; color: var(--gold-accent); font-size: 0.9em; }
+        .code.clicked { color: var(--text-secondary); text-decoration: line-through; opacity: 0.7; }
+        
+        .copy-btn {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; font-size: 1.1em; transition: all 0.2s ease;
+            padding: 5px; display: flex; align-items: center; justify-content: center;
+        }
+        .copy-btn:hover { color: var(--accent-color); transform: scale(1.1); }
+
+        .description { margin: 8px 0 8px 20px; color: var(--text-primary); line-height: 1.5; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        
+        .code-separator {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 12px 0 8px 0;
+            opacity: 0.6;
         }
 
-        [data-theme="dark"] .code-item {
-            background-color: rgba(30, 60, 100, 0.5);
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #28a745;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
         }
 
-        .code-item:hover {
-            transform: translateY(-3px);
-            background-color: rgba(240, 248, 255, 0.9);
-            box-shadow: 0 5px 15px var(--shadow-color);
-        }
+        .added-at { font-size: 0.85em; color: var(--text-secondary); font-style: italic; margin-left: 20px; display: flex; align-items: center; gap: 5px; }
+        
+        a { color: var(--accent-color); text-decoration: none; transition: all 0.2s; }
+        a:hover { color: var(--gold-accent); text-decoration: underline; }
 
-        [data-theme="dark"] .code-item:hover {
-            background-color: rgba(40, 80, 120, 0.7);
-        }
+        .loading { text-align: center; padding: 30px; color: var(--text-primary); font-size: 1.2em; }
+        .error { color: var(--error-color); background-color: rgba(255, 235, 235, 0.9); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(255, 100, 100, 0.3); }
+        [data-theme="dark"] .error, [data-theme="amoled"] .error { background-color: rgba(70, 20, 30, 0.8); color: #ff6b6b; }
+        
+        .last-updated { text-align: center; font-size: 0.9em; color: var(--text-secondary); margin-bottom: 20px; background-color: rgba(230, 240, 255, 0.7); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+        [data-theme="dark"] .last-updated { background-color: rgba(30, 60, 100, 0.5); }
 
-        .code {
-            font-weight: bold;
-            color: var(--accent-color);
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .code::before {
-            content: "✦";
-            color: var(--gold-accent);
-            font-size: 0.9em;
-        }
-
-        /* Style for clicked code */
-        .code.clicked {
-            color: var(--text-secondary); /* Muted color */
-            text-decoration: line-through;
-        }
-
-        .description {
-            margin: 8px 0 8px 20px;
-            color: var(--text-primary);
-            line-height: 1.5;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .added-at {
-            font-size: 0.85em;
-            color: var(--text-secondary);
-            font-style: italic;
-            margin-left: 20px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .new-badge {
-            background-color: var(--gold-accent);
-            color: #1a3a6a;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.7em;
-            font-weight: bold;
-            margin-left: 10px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        [data-theme="dark"] .new-badge {
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        a {
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        a:hover {
-            color: var(--gold-accent);
-            text-decoration: underline;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-primary);
-            font-size: 1.2em;
-        }
-
-        .error {
-            color: var(--error-color);
-            background-color: rgba(255, 235, 235, 0.9);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 100, 100, 0.3);
-        }
-
-        [data-theme="dark"] .error {
-            background-color: rgba(70, 20, 30, 0.8);
-            color: #ff6b6b;
-        }
-
-        .last-updated {
-            text-align: center;
-            font-size: 0.9em;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            background-color: rgba(230, 240, 255, 0.7);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        [data-theme="dark"] .last-updated {
-            background-color: rgba(30, 60, 100, 0.5);
-        }
-
-        /* Footer Styles */
         footer {
             background-color: var(--footer-bg);
             border-top: 1px solid var(--border-color);
-            padding: 20px;
-            margin-top: 30px;
-            border-radius: 12px;
+            padding: 20px; margin-top: 30px; border-radius: 12px;
             box-shadow: 0 -2px 10px var(--shadow-color);
-            backdrop-filter: blur(5px);
-            text-align: center;
-            color: var(--text-secondary); /* Adjust text color for the footer */
-            font-size: 0.9em;
-            flex-shrink: 0; /* Prevent footer from shrinking */
+            text-align: center; color: var(--text-secondary); font-size: 0.9em; flex-shrink: 0;
         }
 
-        footer a {
-            color: var(--accent-color);
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
+        .footer-links { display: flex; justify-content: center; gap: 20px; margin-top: 15px; flex-wrap: wrap; }
         .footer-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background-color: var(--footer-bg);
-            color: var(--text-primary);
-            border-radius: 25px;
-            transition: all 0.3s;
-            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+            background-color: var(--footer-bg); color: var(--text-primary); border-radius: 25px;
+            border: 1px solid var(--border-color); box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        .footer-link:hover { background-color: var(--accent-color); transform: scale(1.05); color: white; box-shadow: 0 4px 15px var(--shadow-color); }
+        .currency-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+
+        .toast {
+            visibility: hidden; min-width: 250px; background-color: var(--accent-color);
+            color: #fff; text-align: center; border-radius: 8px; padding: 12px 20px;
+            position: fixed; z-index: 3000; left: 50%; bottom: 30px;
+            transform: translateX(-50%); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            opacity: 0; transition: opacity 0.3s, bottom 0.3s, visibility 0.3s; font-weight: bold;
+        }
+        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        /* Modal Settings Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 9999; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--card-bg); width: 90%; max-width: 400px;
+            border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px var(--shadow-color);
         }
-
-        .footer-link:hover {
-            background-color: var(--accent-color);
-            transform: scale(1.05);
-            color: white;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            text-decoration: none;
+        .modal-content h3 { margin-top: 0; color: var(--accent-color); margin-bottom: 15px; }
+        .pref-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .pref-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-secondary); padding: 10px 15px;
+            border-radius: 8px; border: 1px solid var(--border-color);
         }
-
-        .currency-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            vertical-align: middle;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        .pref-item-left { display: flex; align-items: center; gap: 10px; }
+        .pref-item-actions { display: flex; gap: 5px; }
+        .pref-btn {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            color: var(--text-primary); border-radius: 4px; padding: 4px 8px;
+            cursor: pointer; transition: background 0.2s;
         }
-
-        /* Smooth transitions for theme change */
-        h1, h2, .game-section, .code-item, .footer-link, .last-updated, .theme-toggle, .menu-toggle, .top-section {
-            transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-        }
+        .pref-btn:hover { background: var(--accent-color); color: white; }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-cancel { padding: 8px 15px; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary); border-radius: 6px; cursor: pointer; }
+        .btn-save { padding: 8px 15px; background: var(--accent-color); border: none; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-save:hover { filter: brightness(1.1); }
 
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .header-container {
-                padding: 8px 12px;
-                margin-top: 0px;
-            }
-
-            h1 {
-                font-size: 1.4em;
-            }
-
-            .game-section {
-                padding: 15px;
-            }
-
-            h2 {
-                font-size: 1.5em;
-            }
-
-            .code-item {
-                padding: 12px;
-            }
-
-            .footer-links {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .theme-toggle, .menu-toggle {
-                width: 32px;
-                height: 32px;
-                font-size: 0.9em;
-            }
-
-            footer {
-                padding: 15px;
-                font-size: 0.85em;
-            }
-
-            .top-section {
-                padding: 10px;
-                font-size: 0.8em;
-            }
-             .top-section h2 {
-                font-size: 1em;
-             }
-
-        }
-
-        @media (min-width: 769px) and (max-width: 1024px) {
-            body {
-                max-width: 90%;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
+            body { padding: 10px; }
+            .header-container { padding: 8px 12px; }
+            h1 { font-size: 1.4em; }
+            .game-section { padding: 15px; }
+            h2 { font-size: 1.4em; }
+            .code-item { padding: 12px; }
+            .footer-links { flex-direction: column; align-items: center; gap: 10px; }
+            .theme-toggle, .menu-toggle { width: 32px; height: 32px; font-size: 0.9em; }
+            .tab-btn { font-size: 0.9em; padding: 8px 12px; }
         }
     </style>
 </head>
 <body data-theme="light">
     <div class="header-container">
-        <h1>
-            <i class="fas fa-gem" style="color: var(--accent-color);"></i>
-            Hoyocodes !
-        </h1>
+        <h1><i class="fas fa-gem" style="color: var(--accent-color);"></i> Hoyocodes !</h1>
         <div class="header-actions">
-            <div class="theme-toggle" id="themeToggle">
-                <i class="fas fa-sun"></i>
-            </div>
-            <div class="menu-toggle" id="menuToggle">
-                <i class="fas fa-ellipsis-v"></i>
-            </div>
+            <div class="theme-toggle" id="themeToggle"><i class="fas fa-sun"></i></div>
+            <div class="menu-toggle" id="menuToggle"><i class="fas fa-ellipsis-v"></i></div>
         </div>
     </div>
 
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="https://github.com/heartlog" target="_blank"><i class="fab fa-github"></i> GitHub</a>
         <a href="https://heartlog.github.io/Hoyocodes/beta" target="_blank"><i class="fas fa-flask"></i> Beta Page</a>
-        <a href="https://m.hoyolab.com/#/accountCenter/postList?id=449295506" target="_blank"><i class="fas fa-plus"></i>Hoyolab</a>
-        <a href="#" id="resetSettings"><i class="fas fa-undo"></i> Reset Settings</a>
+        <a href="https://heartlog.github.io/Hoyocodes/legacy" target="_blank"><i class="fas fa-history"></i> Legacy Page</a>
+        <a href="https://m.hoyolab.com/#/accountCenter/postList?id=449295506" target="_blank"><i class="fas fa-plus"></i> Hoyolab</a>
+        <a id="openPrefsBtn"><i class="fas fa-sliders-h"></i> Game Preferences</a>
+        <a id="openSyncBtn"><i class="fas fa-sync-alt"></i> Export/Import Data</a>
+        <a id="copyUrlBtn"><i class="fas fa-link"></i> Copy Website Link</a>
+        <a id="resetSettings"><i class="fas fa-undo"></i> Reset Settings</a>
     </div>
 
-    <!-- Top Section (About) -->
     <section class="top-section">
+        <span class="bg-emoji emoji-large">✨</span>
         <h2>About Hoyocodes</h2>
-        <p>Hoyocodes is your go-to place for the latest redemption codes for Hoyoverse games, including Genshin Impact, Honkai: Star Rail, and Zenless Zone Zero.  We gather and curate active codes so you can easily redeem them for in-game rewards.</p>
-        <p>Want to contribute or suggest a code?  Visit our <a href="https://github.com/heartlog/Hoyocodes" target="_blank">GitHub repository</a>!</p>
+        <p>Hoyocodes provides the latest redemption codes for Hoyoverse games.</p>
+        <p>Follow me on <a href="https://github.com/heartlog" target="_blank">GitHub</a> for updates and new features.</p>
+        <p>Follow me on <a href="https://m.hoyolab.com/#/accountCenter/postList?id=449295506" target="_blank">HoYoLAB</a> for the latest code announcements and project news.</p>
     </section>
 
-    <div id="loading" class="loading">
-        <i class="fas fa-spinner fa-spin"></i> Loading codes...
-    </div>
+    <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading codes...</div>
     <div id="error" class="error" style="display: none;"></div>
     <div id="last-updated" class="last-updated"></div>
+    
+    <div id="tabsContainer" class="tabs-container" style="display: none;"></div>
+    <div id="content"></div>
 
-    <div id="content">
-        <!-- Content will be loaded here -->
-    </div>
-
-    <footer >
-        <p>© 2025 heartlog. All rights reserved.</p>
+    <footer>
+        <p>© 2026 heartlog. All rights reserved.</p>
         <div class="footer-links">
-            <a href="https://github.com/heartlog" target="_blank" class="footer-link">
-                <i class="fab fa-github"></i> My GitHub Profile
-            </a>
-            <a href="https://github.com/heartlog/Hoyocodes" target="_blank" class="footer-link">
-                <i class="fas fa-code-branch"></i> Hoyocodes Repo
-            </a>
+            <a href="https://github.com/heartlog" target="_blank" class="footer-link"><i class="fab fa-github"></i> My GitHub Profile</a>
+            <a href="https://github.com/heartlog/Hoyocodes" target="_blank" class="footer-link"><i class="fas fa-code-branch"></i> Hoyocodes Repo</a>
         </div>
     </footer>
 
+    <div id="toast" class="toast"></div>
+
+    <!-- Preferences Modal -->
+    <div class="modal-overlay" id="prefsModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-sliders-h"></i> Game Preferences</h3>
+            <p style="font-size: 0.85em; color: var(--text-secondary); margin-top:-5px; margin-bottom: 15px;">Hide or rearrange your game tabs.</p>
+            
+            <div class="pref-list" id="prefsList"></div>
+            
+            <div class="pref-divider" style="height: 1px; background: var(--border-color); margin: 15px 0;"></div>
+            
+            <!-- Hide Redeemed Toggle -->
+            <div class="pref-item" style="border: none; background: transparent; padding: 0; margin-bottom: 20px;">
+                <div class="pref-item-left">
+                    <input type="checkbox" id="hideRedeemedToggle" style="transform: scale(1.2); margin-right: 10px; accent-color: var(--accent-color); cursor: pointer;">
+                    <label for="hideRedeemedToggle" style="color: var(--text-primary); font-weight: bold; cursor: pointer;">Hide Redeemed Codes</label>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="cancelPrefsBtn">Cancel</button>
+                <button class="btn-save" id="savePrefsBtn">Save & Reload</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export/Import Sync Modal -->
+    <div class="modal-overlay" id="syncModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-sync-alt"></i> Export / Import Data</h3>
+            <p style="font-size: 0.85em; color: var(--text-secondary); margin-top:-5px; margin-bottom: 15px;">Copy the code below to save your settings, or paste a previously saved code to import it.</p>
+            
+            <textarea id="syncDataInput" rows="10" style="width: 100%; box-sizing: border-box; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.9em; resize: vertical; margin-bottom: 15px; outline: none;"></textarea>
+            
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="copySyncBtn" style="margin-right: auto;"><i class="fas fa-copy"></i> Copy</button>
+                <button class="btn-cancel" id="cancelSyncBtn">Cancel</button>
+                <button class="btn-save" id="saveSyncBtn">Save Data</button>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // Default Game Configuration & Palette Data
+        const DEFAULT_GAMES = [
+            { id: 'genshin', slug: 'genshin', name: 'Genshin Impact', icon: '<i class="fas fa-wind"></i>', url: 'https://genshin.hoyoverse.com/en/gift?code=' },
+            { id: 'hsr', slug: 'starrail', name: 'Honkai: Star Rail', icon: '<i class="fas fa-train"></i>', url: 'https://hsr.hoyoverse.com/gift?code=' },
+            { id: 'zzz', slug: 'zenless', name: 'Zenless Zone Zero', icon: '<i class="fas fa-gamepad"></i>', url: 'https://zenless.hoyoverse.com/redemption?code=' },
+            { id: 'hi3', slug: 'honkai', name: 'Honkai Impact 3rd', icon: '<i class="fas fa-meteor"></i>', url: '' },
+            { id: 'tot', slug: 'themis', name: 'Tears of Themis', icon: '<i class="fas fa-balance-scale"></i>', url: 'https://tot.hoyoverse.com/gift/?code=' }
+        ];
+
+        const PALETTE = {
+            'genshin': { light: '#0066cc', dark: '#4d9fff', amoled: '#66b3ff' },
+            'hsr': { light: '#d81b60', dark: '#ff7eb9', amoled: '#ff4da6' },
+            'zzz': { light: '#6d28d9', dark: '#a78bfa', amoled: '#c4b5fd' },
+            'hi3': { light: '#e65100', dark: '#ff8c00', amoled: '#ffa733' },
+            'tot': { light: '#b8860b', dark: '#d4af37', amoled: '#ffd700' }
+        };
+
+        let userGamePrefs = [];
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Apply Hide Redeemed preference on initial load
+            if (localStorage.getItem('hideRedeemed') === 'true') {
+                document.body.classList.add('hide-redeemed');
+            }
+
+            loadGamePrefs();
             fetchGameCodes();
             setupThemeToggle();
             setupMenuToggle();
-            setupCollapsibleSections();
-            restoreScrollPosition();
             setupResetSettings();
+            setupCopyUrl();
+            setupPrefsModal();
+            setupSyncModal();
+            
+            // Set initial palette based on saved tab
+            const savedTab = localStorage.getItem('activeTab') || 'genshin';
+            updatePalette(savedTab);
         });
+
+        function loadGamePrefs() {
+            const saved = JSON.parse(localStorage.getItem('userGamePrefs'));
+            if (saved && saved.length === DEFAULT_GAMES.length) {
+                userGamePrefs = saved;
+            } else {
+                userGamePrefs = DEFAULT_GAMES.map(g => ({ id: g.id, visible: true }));
+            }
+        }
+
+        function updatePalette(gameId) {
+            const theme = document.body.getAttribute('data-theme') || 'light';
+            const colorData = PALETTE[gameId];
+            if (colorData) {
+                document.body.style.setProperty('--accent-color', colorData[theme]);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            toast.className = 'toast show';
+            setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
+        }
+
+        function setupCopyUrl() {
+            document.getElementById('copyUrlBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showToast('Website link copied!');
+                    document.getElementById('dropdownMenu').classList.remove('show');
+                }).catch(err => console.error('Failed to copy text: ', err));
+            });
+        }
 
         function setupThemeToggle() {
             const themeToggle = document.getElementById('themeToggle');
             const icon = themeToggle.querySelector('i');
+            const themes = ['light', 'dark', 'amoled'];
+            const icons = ['fas fa-sun', 'fas fa-moon', 'fas fa-circle-half-stroke'];
+
+            let currentThemeIndex = themes.indexOf(localStorage.getItem('themePreference') || 'light');
+            if (currentThemeIndex === -1) currentThemeIndex = 0;
+
+            const applyTheme = (index) => {
+                document.body.setAttribute('data-theme', themes[index]);
+                icon.className = icons[index];
+                
+                const activeTabBtn = document.querySelector('.tab-btn.active');
+                if(activeTabBtn) updatePalette(activeTabBtn.getAttribute('data-target'));
+            };
+
+            applyTheme(currentThemeIndex);
 
             themeToggle.addEventListener('click', function() {
-                const currentTheme = document.body.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-                document.body.setAttribute('data-theme', newTheme);
-                localStorage.setItem('themePreference', newTheme);
-
-                icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+                localStorage.setItem('themePreference', themes[currentThemeIndex]);
+                applyTheme(currentThemeIndex);
             });
-
-            // Check for saved theme preference
-            const savedTheme = localStorage.getItem('themePreference');
-            if (savedTheme) {
-                document.body.setAttribute('data-theme', savedTheme);
-                icon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-            }
         }
 
         function setupMenuToggle() {
             const menuToggle = document.getElementById('menuToggle');
             const dropdownMenu = document.getElementById('dropdownMenu');
-
             menuToggle.addEventListener('click', function(e) {
                 e.stopPropagation();
                 dropdownMenu.classList.toggle('show');
             });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function() {
-                dropdownMenu.classList.remove('show');
+            document.addEventListener('click', function(e) { 
+                if(!e.target.closest('#dropdownMenu')) dropdownMenu.classList.remove('show'); 
             });
         }
 
-        function setupCollapsibleSections() {
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('.game-header')) {
-                    const section = e.target.closest('.game-section');
-                    section.classList.toggle('collapsed');
-
-                    // Save collapsed state
-                    const gameId = section.id;
-                    const isCollapsed = section.classList.contains('collapsed');
-                    localStorage.setItem(`collapsed_${gameId}`, isCollapsed);
-                }
-            });
-        }
-
-        function restoreCollapsedStates() {
-            document.querySelectorAll('.game-section').forEach(section => {
-                const gameId = section.id;
-                const isCollapsed = localStorage.getItem(`collapsed_${gameId}`) === 'true';
-                if (isCollapsed) {
-                    section.classList.add('collapsed');
-                }
-            });
-        }
-
-        function restoreScrollPosition() {
-            const scrollY = localStorage.getItem('scrollPosition');
-            if (scrollY) {
-                window.scrollTo(0, parseInt(scrollY));
-            }
-
-            window.addEventListener('beforeunload', function() {
-                localStorage.setItem('scrollPosition', window.scrollY);
-            });
-        }
-
-         function setupResetSettings() {
-            const resetSettings = document.getElementById('resetSettings');
-
-            resetSettings.addEventListener('click', function(e) {
+        function setupResetSettings() {
+            document.getElementById('resetSettings').addEventListener('click', function(e) {
                 e.preventDefault();
-
-                // Clear localStorage
-                localStorage.removeItem('themePreference');
-                localStorage.removeItem('scrollPosition');
-                localStorage.removeItem('clickedCodes');
-
-                // Clear collapsed states
-                document.querySelectorAll('.game-section').forEach(section => {
-                    const gameId = section.id;
-                    localStorage.removeItem(`collapsed_${gameId}`);
-                });
-
-                // Reload the page
+                localStorage.clear();
                 location.reload();
             });
         }
 
+        function setupSyncModal() {
+            const openBtn = document.getElementById('openSyncBtn');
+            const cancelBtn = document.getElementById('cancelSyncBtn');
+            const saveBtn = document.getElementById('saveSyncBtn');
+            const copyBtn = document.getElementById('copySyncBtn');
+            const modal = document.getElementById('syncModal');
+            const textArea = document.getElementById('syncDataInput');
+
+            // Open Modal and package current settings into JSON
+            openBtn.addEventListener('click', () => {
+                document.getElementById('dropdownMenu').classList.remove('show');
+                
+                const currentData = {
+                    userGamePrefs: JSON.parse(localStorage.getItem('userGamePrefs') || '[]'),
+                    clickedCodes: JSON.parse(localStorage.getItem('clickedCodes') || '[]'),
+                    hideRedeemed: localStorage.getItem('hideRedeemed'),
+                    themePreference: localStorage.getItem('themePreference')
+                };
+                
+                textArea.value = JSON.stringify(currentData, null, 2);
+                modal.classList.add('active');
+            });
+
+            // Close Modal
+            cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
+
+            // Copy to Clipboard
+            copyBtn.addEventListener('click', () => {
+                textArea.select();
+                navigator.clipboard.writeText(textArea.value).then(() => {
+                    showToast('JSON data copied to clipboard!');
+                    const originalHtml = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                    setTimeout(() => copyBtn.innerHTML = originalHtml, 2000);
+                }).catch(err => console.error('Failed to copy: ', err));
+            });
+
+            // Save and Import New Data
+            saveBtn.addEventListener('click', () => {
+                try {
+                    const importedData = JSON.parse(textArea.value);
+                    
+                    if (importedData.userGamePrefs) localStorage.setItem('userGamePrefs', JSON.stringify(importedData.userGamePrefs));
+                    if (importedData.clickedCodes) localStorage.setItem('clickedCodes', JSON.stringify(importedData.clickedCodes));
+                    if (importedData.hideRedeemed !== undefined) localStorage.setItem('hideRedeemed', importedData.hideRedeemed);
+                    if (importedData.themePreference) localStorage.setItem('themePreference', importedData.themePreference);
+                    
+                    showToast('Data imported successfully! Reloading...');
+                    modal.classList.remove('active');
+                    
+                    setTimeout(() => location.reload(), 1200);
+                    
+                } catch (e) {
+                    showToast('Invalid JSON format! Please check your input.');
+                    textArea.style.borderColor = 'var(--error-color)';
+                    setTimeout(() => textArea.style.borderColor = 'var(--border-color)', 2000);
+                }
+            });
+        }
+
+        function setupPrefsModal() {
+            const openBtn = document.getElementById('openPrefsBtn');
+            const cancelBtn = document.getElementById('cancelPrefsBtn');
+            const saveBtn = document.getElementById('savePrefsBtn');
+            const modal = document.getElementById('prefsModal');
+            const hideRedeemedToggle = document.getElementById('hideRedeemedToggle');
+            let tempPrefs = [...userGamePrefs];
+
+            openBtn.addEventListener('click', () => {
+                document.getElementById('dropdownMenu').classList.remove('show');
+                tempPrefs = JSON.parse(JSON.stringify(userGamePrefs));
+                renderPrefsList(tempPrefs);
+                hideRedeemedToggle.checked = localStorage.getItem('hideRedeemed') === 'true';
+                modal.classList.add('active');
+            });
+
+            cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
+
+            saveBtn.addEventListener('click', () => {
+                const hasVisible = tempPrefs.some(p => p.visible);
+                if(!hasVisible) {
+                    showToast('At least one game must be visible!');
+                    return;
+                }
+                
+                localStorage.setItem('userGamePrefs', JSON.stringify(tempPrefs));
+                
+                const isHidden = hideRedeemedToggle.checked;
+                localStorage.setItem('hideRedeemed', isHidden);
+                if (isHidden) {
+                    document.body.classList.add('hide-redeemed');
+                } else {
+                    document.body.classList.remove('hide-redeemed');
+                }
+                
+                const currentTab = localStorage.getItem('activeTab');
+                const isCurrentVisible = tempPrefs.find(p => p.id === currentTab)?.visible;
+                if(!isCurrentVisible) localStorage.removeItem('activeTab');
+                
+                location.reload();
+            });
+
+            function renderPrefsList(prefs) {
+                const list = document.getElementById('prefsList');
+                list.innerHTML = '';
+                prefs.forEach((pref, index) => {
+                    const gameInfo = DEFAULT_GAMES.find(g => g.id === pref.id);
+                    const item = document.createElement('div');
+                    item.className = 'pref-item';
+                    
+                    item.innerHTML = `
+                        <div class="pref-item-left">
+                            <input type="checkbox" id="chk_${pref.id}" ${pref.visible ? 'checked' : ''} style="cursor: pointer; accent-color: var(--accent-color);">
+                            <label for="chk_${pref.id}" style="cursor: pointer;">${gameInfo.icon} ${gameInfo.name}</label>
+                        </div>
+                        <div class="pref-item-actions">
+                            <button class="pref-btn" data-action="up" data-idx="${index}" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button>
+                            <button class="pref-btn" data-action="down" data-idx="${index}" ${index === prefs.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button>
+                        </div>
+                    `;
+                    
+                    item.querySelector('input').addEventListener('change', (e) => {
+                        prefs[index].visible = e.target.checked;
+                    });
+                    
+                    item.querySelectorAll('.pref-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const action = e.currentTarget.getAttribute('data-action');
+                            const idx = parseInt(e.currentTarget.getAttribute('data-idx'));
+                            if (action === 'up' && idx > 0) {
+                                [prefs[idx - 1], prefs[idx]] = [prefs[idx], prefs[idx - 1]];
+                            } else if (action === 'down' && idx < prefs.length - 1) {
+                                [prefs[idx], prefs[idx + 1]] = [prefs[idx + 1], prefs[idx]];
+                            }
+                            renderPrefsList(prefs);
+                        });
+                    });
+                    list.appendChild(item);
+                });
+            }
+        }
 
         function fetchGameCodes() {
-            fetch('https://db.hashblen.com/codes')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+            const activeEndpoints = [];
+            userGamePrefs.forEach(pref => {
+                if (pref.visible) {
+                    const gameConf = DEFAULT_GAMES.find(g => g.id === pref.id);
+                    if(gameConf) activeEndpoints.push(gameConf);
+                }
+            });
+
+            if(activeEndpoints.length === 0) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'All games are hidden. Check Game Preferences.';
+                return;
+            }
+
+            Promise.all(activeEndpoints.map(game => 
+                fetch(`https://api.ennead.cc/mihoyo/${game.slug}/codes`)
+                    .then(res => {
+                        if (!res.ok) throw new Error(`Failed to fetch ${game.name}`);
+                        return res.json();
+                    })
+                    .then(data => ({ ...game, codes: data.active || [] }))
+                    .catch(err => {
+                        console.error(err);
+                        return { ...game, codes: [] }; 
+                    })
+            ))
+            .then(results => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('last-updated').textContent = `Last fetched: ${new Date().toLocaleString()}`;
+                
+                const tabsContainer = document.getElementById('tabsContainer');
+                const contentDiv = document.getElementById('content');
+                
+                tabsContainer.innerHTML = '';
+                contentDiv.innerHTML = '';
+                tabsContainer.style.display = 'flex';
+                
+                const currencyIcons = { 
+                    'primogem': 'assets/primogem.png', 'stellar jade': 'assets/stellarjade.png', 
+                    'polychrome': 'assets/polychrome.png', 'crystal': 'assets/crystal.png', 's-chip': 'assets/schip.png'
+                };
+                
+                const clickedCodes = JSON.parse(localStorage.getItem('clickedCodes') || '[]');
+                let hasCodes = false;
+                let firstValidId = null;
+
+                results.forEach(gameData => {
+                    if (gameData.codes.length > 0) {
+                        hasCodes = true;
+                        if (!firstValidId) firstValidId = gameData.id;
+
+                        const tabBtn = document.createElement('button');
+                        tabBtn.className = 'tab-btn';
+                        tabBtn.setAttribute('data-target', gameData.id);
+                        tabBtn.innerHTML = `${gameData.icon} ${gameData.name}`;
+                        
+                        tabBtn.addEventListener('click', () => {
+                            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                            document.querySelectorAll('.game-section').forEach(sec => sec.classList.remove('active'));
+                            
+                            tabBtn.classList.add('active');
+                            document.getElementById(gameData.id).classList.add('active');
+                            localStorage.setItem('activeTab', gameData.id);
+                            
+                            updatePalette(gameData.id);
+                        });
+
+                        tabsContainer.appendChild(tabBtn);
+
+                        createGameSection(contentDiv, gameData.name, gameData.id, gameData.codes, gameData.url, currencyIcons, clickedCodes);
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.retcode !== 0) {
-                        throw new Error('API returned error code');
-                    }
-                    displayGameCodes(data);
-                })
-                .catch(error => {
-                    console.error('Error fetching game codes:', error);
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('error').style.display = 'block';
-                    document.getElementById('error').textContent = 'Failed to load codes. Please try again later.';
                 });
-        }
 
-        // Function to get clicked codes from local storage
-        function getClickedCodes() {
-            const clickedCodes = localStorage.getItem('clickedCodes');
-            return clickedCodes ? JSON.parse(clickedCodes) : [];
-        }
+                if (!hasCodes) {
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error').textContent = 'No active codes found or failed to load data.';
+                    tabsContainer.style.display = 'none';
+                    return;
+                }
 
-        // Function to save clicked codes to local storage
-        function saveClickedCodes(codes) {
-            localStorage.setItem('clickedCodes', JSON.stringify(codes));
-        }
-
-        function displayGameCodes(data) {
-            document.getElementById('loading').style.display = 'none';
-
-            // Display last updated time
-            const lastUpdated = new Date(data.latest_update * 1000);
-            document.getElementById('last-updated').textContent =
-                `Last updated: ${lastUpdated.toLocaleString()}`;
-
-            const contentDiv = document.getElementById('content');
-
-            // Game icons and currency icons
-            const gameIcons = {
-                'genshin': '<i class="fas fa-wind" style="color: #0066cc;"></i>',
-                'hsr': '<i class="fas fa-train" style="color: #ff7eb9;"></i>',
-                'zzz': '<i class="fas fa-gamepad" style="color: #a78bfa;"></i>'
-            };
-
-            // Currency icons (replace with your preferred image URLs)
-            const currencyIcons = {
-                'primogem': 'assets/primogem.png',
-                'stellar jade': 'assets/stellarjade.png',
-                'polychrome': 'assets/polychrome.png'
-            };
-
-            const clickedCodes = getClickedCodes(); // Get clicked codes from local storage
-
-            // Process each game
-            if (data.genshin && data.genshin.length > 0) {
-                const sortedGenshin = [...data.genshin].sort((a, b) => b.added_at - a.added_at);
-                createGameSection(contentDiv, gameIcons.genshin + ' Genshin Impact', 'genshin', sortedGenshin, 'https://genshin.hoyoverse.com/en/gift?code=', currencyIcons, clickedCodes);
-            }
-
-            if (data.hsr && data.hsr.length > 0) {
-                const sortedHSR = [...data.hsr].sort((a, b) => b.added_at - a.added_at);
-                createGameSection(contentDiv, gameIcons.hsr + ' Honkai: Star Rail', 'hsr', sortedHSR, 'https://hsr.hoyoverse.com/gift?code=', currencyIcons, clickedCodes);
-            }
-
-            if (data.zzz && data.zzz.length > 0) {
-                const sortedZZZ = [...data.zzz].sort((a, b) => b.added_at - a.added_at);
-                createGameSection(contentDiv, gameIcons.zzz + ' Zenless Zone Zero', 'zzz', sortedZZZ, 'https://zenless.hoyoverse.com/redemption?code=', currencyIcons, clickedCodes);
-            }
-
-            // Restore collapsed states after content is loaded
-            setTimeout(restoreCollapsedStates, 100);
+                const savedTab = localStorage.getItem('activeTab');
+                const tabToActivate = (savedTab && document.querySelector(`.tab-btn[data-target="${savedTab}"]`)) 
+                    ? savedTab 
+                    : firstValidId;
+                
+                document.querySelector(`.tab-btn[data-target="${tabToActivate}"]`).click();
+            });
         }
 
         function createGameSection(parent, gameName, gameId, codes, baseUrl, currencyIcons, clickedCodes) {
@@ -756,91 +823,121 @@
 
             const header = document.createElement('div');
             header.className = 'game-header';
-
-            const heading = document.createElement('h2');
-            heading.innerHTML = gameName;
-
-            const toggleIcon = document.createElement('i');
-            toggleIcon.className = 'fas fa-chevron-down toggle-icon';
-
-            header.appendChild(heading);
-            header.appendChild(toggleIcon);
+            header.innerHTML = `<h2>${gameName}</h2>`;
             section.appendChild(header);
 
-            const content = document.createElement('div');
-            content.className = 'game-content';
-
-            const now = Math.floor(Date.now() / 1000);
-            const oneWeekAgo = now - (7 * 24 * 60 * 60); // 7 days in seconds
-
             codes.forEach(codeData => {
+                const isRedeemed = clickedCodes.includes(codeData.code);
+                
                 const codeItem = document.createElement('div');
-                codeItem.className = 'code-item';
-
-                // Add "New" badge if code was added in the last 7 days
-                const isNew = codeData.added_at > oneWeekAgo;
+                codeItem.className = `code-item ${isRedeemed ? 'is-redeemed' : ''}`;
+                
+                const headerContainer = document.createElement('div');
+                headerContainer.className = 'code-header-container';
 
                 const codeLink = document.createElement('a');
-                codeLink.className = 'code';
-                codeLink.href = baseUrl + codeData.code;
-                codeLink.target = '_blank';
-                codeLink.textContent = codeData.code;
-
-                // Check if the code is in the clickedCodes array and style it accordingly
-                if (clickedCodes.includes(codeData.code)) {
-                    codeLink.classList.add('clicked');
+                codeLink.className = `code ${isRedeemed ? 'clicked' : ''}`;
+                
+                if (baseUrl === '') {
+                    codeLink.href = '#';
+                    codeLink.title = 'Copy code (Redeem in-game)';
+                    codeLink.innerHTML = `${codeData.code} <i class="fas fa-copy" style="font-size:0.7em; margin-left:5px;"></i>`;
+                    codeLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!clickedCodes.includes(codeData.code)) {
+                            clickedCodes.push(codeData.code);
+                            localStorage.setItem('clickedCodes', JSON.stringify(clickedCodes));
+                            codeLink.classList.add('clicked');
+                            codeItem.classList.add('is-redeemed');
+                        }
+                        navigator.clipboard.writeText(codeData.code).then(() => {
+                            showToast('Code copied! Redeem in-game.');
+                        });
+                    });
+                } else {
+                    codeLink.href = baseUrl + codeData.code;
+                    codeLink.target = '_blank';
+                    codeLink.title = 'Click to redeem on Website';
+                    codeLink.innerHTML = `${codeData.code} <i class="fas fa-external-link-alt" style="font-size:0.7em; margin-left:5px;"></i>`;
+                    codeLink.addEventListener('click', function() {
+                        if (!clickedCodes.includes(codeData.code)) {
+                            clickedCodes.push(codeData.code);
+                            localStorage.setItem('clickedCodes', JSON.stringify(clickedCodes));
+                            codeLink.classList.add('clicked');
+                            codeItem.classList.add('is-redeemed');
+                        }
+                    });
                 }
-
-                // Add event listener to code links to track clicked codes
-                codeLink.addEventListener('click', function(e) {
-                    const codeValue = codeData.code;
-                    if (!clickedCodes.includes(codeValue)) {
-                        clickedCodes.push(codeValue);
-                        saveClickedCodes(clickedCodes);
-                        codeLink.classList.add('clicked');
-                    }
+                
+                headerContainer.appendChild(codeLink);
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.innerHTML = '<i class="far fa-copy"></i>';
+                copyBtn.title = 'Copy code only';
+                copyBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigator.clipboard.writeText(codeData.code).then(() => {
+                        showToast('Code copied to clipboard!');
+                        copyBtn.innerHTML = '<i class="fas fa-check" style="color: var(--accent-color);"></i>';
+                        setTimeout(() => copyBtn.innerHTML = '<i class="far fa-copy"></i>', 2000);
+                    }).catch(err => console.error('Failed to copy: ', err));
                 });
-
-
-                if (isNew) {
-                    const newBadge = document.createElement('span');
-                    newBadge.className = 'new-badge';
-                    newBadge.textContent = 'New';
-                    codeLink.appendChild(newBadge);
-                }
+                
+                headerContainer.appendChild(copyBtn);
 
                 const description = document.createElement('div');
                 description.className = 'description';
-
-                // Check for currency mentions in description
-                const lowerDesc = codeData.description.toLowerCase();
-                let currencyIcon = '';
-
-                if (lowerDesc.includes('primogem')) {
-                    currencyIcon = `<img src="${currencyIcons['primogem']}" class="currency-icon" alt="Primogem">`;
-                } else if (lowerDesc.includes('stellar jade')) {
-                    currencyIcon = `<img src="${currencyIcons['stellar jade']}" class="currency-icon" alt="Stellar Jade">`;
-                } else if (lowerDesc.includes('polychrome')) {
-                    currencyIcon = `<img src="${currencyIcons['polychrome']}" class="currency-icon" alt="Polychrome">`;
+                
+                let descText = "Free Rewards";
+                if (Array.isArray(codeData.rewards)) {
+                    descText = codeData.rewards.join(' • ');
+                } else if (codeData.rewards) {
+                    descText = codeData.rewards;
                 }
 
-                description.innerHTML = currencyIcon + codeData.description;
+                const lowerDesc = descText.toLowerCase();
+                let currencyIcon = '';
+                
+                if (lowerDesc.includes('primogem')) currencyIcon = `<img src="${currencyIcons['primogem']}" class="currency-icon" alt="Primogem">`;
+                else if (lowerDesc.includes('stellar jade')) currencyIcon = `<img src="${currencyIcons['stellar jade']}" class="currency-icon" alt="Stellar Jade">`;
+                else if (lowerDesc.includes('polychrome')) currencyIcon = `<img src="${currencyIcons['polychrome']}" class="currency-icon" alt="Polychrome">`;
+                else if (lowerDesc.includes('crystal')) currencyIcon = `<img src="${currencyIcons['crystal']}" class="currency-icon" alt="Crystal">`;
+                else if (lowerDesc.includes('s-chip')) currencyIcon = `<img src="${currencyIcons['s-chip']}" class="currency-icon" alt="S-Chip">`;
+                
+                description.innerHTML = currencyIcon + descText;
+
+                const separator = document.createElement('hr');
+                separator.className = 'code-separator';
 
                 const addedAt = document.createElement('div');
                 addedAt.className = 'added-at';
-                const date = new Date(codeData.added_at * 1000);
-                addedAt.innerHTML = `<i class="far fa-calendar-alt"></i> Added: ${date.toLocaleDateString()}`;
-
-                codeItem.appendChild(codeLink);
+                addedAt.innerHTML = `<span class="status-indicator"></span> Active Code`;
+                
+                codeItem.appendChild(headerContainer);
                 codeItem.appendChild(description);
+                codeItem.appendChild(separator);
                 codeItem.appendChild(addedAt);
-
-                content.appendChild(codeItem);
+                
+                section.appendChild(codeItem);
             });
 
-            section.appendChild(content);
             parent.appendChild(section);
         }
     </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/Hoyocodes/sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('ServiceWorker registration failed:', error);
+                });
+        });
+    }
+</script>
+
 </body>
 </html>
