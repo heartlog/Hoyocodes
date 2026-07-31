@@ -21,7 +21,8 @@ A web application that fetches and displays redeemable codes for various HoYover
 
 ## How It Works
 
-1. The page loads and makes a request to `https://db.hashblen.com/codes`
+1. The page loads and makes a request to `https://db.hashblen.com/codes` and `https://github.com/torikushiii/hoyoverse-api`
+
 2. The API returns JSON database containing all available codes
 3. The website organizes codes by game and displays them in sections
 4. Each code becomes a clickable link that opens the game's redemption page
