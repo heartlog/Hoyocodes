@@ -388,16 +388,17 @@
         <a href="https://heartlog.github.io/Hoyocodes/legacy" target="_blank"><i class="fas fa-history"></i> Legacy Page</a>
         <a href="https://m.hoyolab.com/#/accountCenter/postList?id=449295506" target="_blank"><i class="fas fa-plus"></i> Hoyolab</a>
         <a id="openPrefsBtn"><i class="fas fa-sliders-h"></i> Game Preferences</a>
+        <a id="openSyncBtn"><i class="fas fa-sync-alt"></i> Export/Import Data</a>
         <a id="copyUrlBtn"><i class="fas fa-link"></i> Copy Website Link</a>
         <a id="resetSettings"><i class="fas fa-undo"></i> Reset Settings</a>
     </div>
 
     <section class="top-section">
-        <!-- Replaced CSS pseudo-elements with direct HTML emojis -->
         <span class="bg-emoji emoji-large">✨</span>
         <h2>About Hoyocodes</h2>
-        <p>Hoyocodes is your go-to place for the latest redemption codes for Hoyoverse games.</p>
-        <p>Want to contribute or suggest a code? Visit our <a href="https://github.com/heartlog/Hoyocodes" target="_blank">GitHub repository</a>!</p>
+        <p>Hoyocodes provides the latest redemption codes for Hoyoverse games.</p>
+        <p>Follow me on <a href="https://github.com/heartlog" target="_blank">GitHub</a> for updates and new features.</p>
+        <p>Follow me on <a href="https://m.hoyolab.com/#/accountCenter/postList?id=449295506" target="_blank">HoYoLAB</a> for the latest code announcements and project news.</p>
     </section>
 
     <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading codes...</div>
@@ -441,6 +442,22 @@
             </div>
         </div>
     </div>
+    
+    <!-- Export/Import Sync Modal -->
+    <div class="modal-overlay" id="syncModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-sync-alt"></i> Export / Import Data</h3>
+            <p style="font-size: 0.85em; color: var(--text-secondary); margin-top:-5px; margin-bottom: 15px;">Copy the code below to save your settings, or paste a previously saved code to import it.</p>
+            
+            <textarea id="syncDataInput" rows="10" style="width: 100%; box-sizing: border-box; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.9em; resize: vertical; margin-bottom: 15px; outline: none;"></textarea>
+            
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="copySyncBtn" style="margin-right: auto;"><i class="fas fa-copy"></i> Copy</button>
+                <button class="btn-cancel" id="cancelSyncBtn">Cancel</button>
+                <button class="btn-save" id="saveSyncBtn">Save Data</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Default Game Configuration & Palette Data
@@ -475,6 +492,7 @@
             setupResetSettings();
             setupCopyUrl();
             setupPrefsModal();
+            setupSyncModal();
             
             // Set initial palette based on saved tab
             const savedTab = localStorage.getItem('activeTab') || 'genshin';
@@ -558,6 +576,66 @@
                 e.preventDefault();
                 localStorage.clear();
                 location.reload();
+            });
+        }
+
+        function setupSyncModal() {
+            const openBtn = document.getElementById('openSyncBtn');
+            const cancelBtn = document.getElementById('cancelSyncBtn');
+            const saveBtn = document.getElementById('saveSyncBtn');
+            const copyBtn = document.getElementById('copySyncBtn');
+            const modal = document.getElementById('syncModal');
+            const textArea = document.getElementById('syncDataInput');
+
+            // Open Modal and package current settings into JSON
+            openBtn.addEventListener('click', () => {
+                document.getElementById('dropdownMenu').classList.remove('show');
+                
+                const currentData = {
+                    userGamePrefs: JSON.parse(localStorage.getItem('userGamePrefs') || '[]'),
+                    clickedCodes: JSON.parse(localStorage.getItem('clickedCodes') || '[]'),
+                    hideRedeemed: localStorage.getItem('hideRedeemed'),
+                    themePreference: localStorage.getItem('themePreference')
+                };
+                
+                textArea.value = JSON.stringify(currentData, null, 2);
+                modal.classList.add('active');
+            });
+
+            // Close Modal
+            cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
+
+            // Copy to Clipboard
+            copyBtn.addEventListener('click', () => {
+                textArea.select();
+                navigator.clipboard.writeText(textArea.value).then(() => {
+                    showToast('JSON data copied to clipboard!');
+                    const originalHtml = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                    setTimeout(() => copyBtn.innerHTML = originalHtml, 2000);
+                }).catch(err => console.error('Failed to copy: ', err));
+            });
+
+            // Save and Import New Data
+            saveBtn.addEventListener('click', () => {
+                try {
+                    const importedData = JSON.parse(textArea.value);
+                    
+                    if (importedData.userGamePrefs) localStorage.setItem('userGamePrefs', JSON.stringify(importedData.userGamePrefs));
+                    if (importedData.clickedCodes) localStorage.setItem('clickedCodes', JSON.stringify(importedData.clickedCodes));
+                    if (importedData.hideRedeemed !== undefined) localStorage.setItem('hideRedeemed', importedData.hideRedeemed);
+                    if (importedData.themePreference) localStorage.setItem('themePreference', importedData.themePreference);
+                    
+                    showToast('Data imported successfully! Reloading...');
+                    modal.classList.remove('active');
+                    
+                    setTimeout(() => location.reload(), 1200);
+                    
+                } catch (e) {
+                    showToast('Invalid JSON format! Please check your input.');
+                    textArea.style.borderColor = 'var(--error-color)';
+                    setTimeout(() => textArea.style.borderColor = 'var(--border-color)', 2000);
+                }
             });
         }
 
