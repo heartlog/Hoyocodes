@@ -150,17 +150,40 @@
         .top-section {
             background-color: var(--card-bg);
             border-radius: 12px;
-            padding: 10px 15px;
+            padding: 15px;
             margin-bottom: 15px;
             box-shadow: 0 2px 10px var(--shadow-color);
             border: 1px solid var(--border-color);
             backdrop-filter: blur(3px);
             font-size: 0.9em;
+            position: relative;
+            overflow: hidden;
         }
 
-        .top-section h2 { color: var(--accent-color); font-size: 1.2em; margin-bottom: 8px; }
-        .top-section p { color: var(--text-primary); line-height: 1.4; margin-bottom: 5px; }
-        .top-section a { color: var(--accent-color); text-decoration: none; font-weight: bold; }
+        /* HTML Emoji Background Styles */
+        .bg-emoji {
+            position: absolute;
+            opacity: 0.15; /* Translucent effect */
+            pointer-events: none;
+            z-index: 0;
+            line-height: 1;
+        }
+
+        .emoji-large {
+            right: -20px;
+            top: -20px;
+            font-size: 8em;
+        }
+
+        .emoji-small {
+            right: 60px;
+            top: 30px;
+            font-size: 4em;
+        }
+
+        .top-section h2 { color: var(--accent-color); font-size: 1.2em; margin-bottom: 8px; position: relative; z-index: 1; }
+        .top-section p { color: var(--text-primary); line-height: 1.4; margin-bottom: 5px; position: relative; z-index: 1; }
+        .top-section a { color: var(--accent-color); text-decoration: none; font-weight: bold; position: relative; z-index: 1; }
         .top-section a:hover { color: var(--gold-accent); text-decoration: underline; }
 
         /* TABS UI STYLES */
@@ -170,17 +193,17 @@
             margin-bottom: 15px;
             overflow-x: auto;
             padding-bottom: 5px;
-            scrollbar-width: thin;
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
         }
-        .tabs-container::-webkit-scrollbar { height: 6px; }
-        .tabs-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        .tabs-container::-webkit-scrollbar { display: none; }
 
         .tab-btn {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 10px 16px;
-            border-radius: 8px;
+            padding: 8px 18px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
             display: flex;
@@ -249,6 +272,24 @@
         .copy-btn:hover { color: var(--accent-color); transform: scale(1.1); }
 
         .description { margin: 8px 0 8px 20px; color: var(--text-primary); line-height: 1.5; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        
+        .code-separator {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 12px 0 8px 0;
+            opacity: 0.6;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #28a745;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+
         .added-at { font-size: 0.85em; color: var(--text-secondary); font-style: italic; margin-left: 20px; display: flex; align-items: center; gap: 5px; }
         
         a { color: var(--accent-color); text-decoration: none; transition: all 0.2s; }
@@ -352,6 +393,8 @@
     </div>
 
     <section class="top-section">
+        <!-- Replaced CSS pseudo-elements with direct HTML emojis -->
+        <span class="bg-emoji emoji-large">✨</span>
         <h2>About Hoyocodes</h2>
         <p>Hoyocodes is your go-to place for the latest redemption codes for Hoyoverse games.</p>
         <p>Want to contribute or suggest a code? Visit our <a href="https://github.com/heartlog/Hoyocodes" target="_blank">GitHub repository</a>!</p>
@@ -401,7 +444,6 @@
 
     <script>
         // Default Game Configuration & Palette Data
-        // Updated TOT URL parameter structure
         const DEFAULT_GAMES = [
             { id: 'genshin', slug: 'genshin', name: 'Genshin Impact', icon: '<i class="fas fa-wind"></i>', url: 'https://genshin.hoyoverse.com/en/gift?code=' },
             { id: 'hsr', slug: 'starrail', name: 'Honkai: Star Rail', icon: '<i class="fas fa-train"></i>', url: 'https://hsr.hoyoverse.com/gift?code=' },
@@ -448,7 +490,6 @@
             }
         }
 
-        // Apply dynamically to document.body.style so it overrides CSS variables for Dark/Amoled themes
         function updatePalette(gameId) {
             const theme = document.body.getAttribute('data-theme') || 'light';
             const colorData = PALETTE[gameId];
@@ -487,7 +528,6 @@
                 document.body.setAttribute('data-theme', themes[index]);
                 icon.className = icons[index];
                 
-                // Ensure palette matches new theme
                 const activeTabBtn = document.querySelector('.tab-btn.active');
                 if(activeTabBtn) updatePalette(activeTabBtn.getAttribute('data-target'));
             };
@@ -546,10 +586,8 @@
                     return;
                 }
                 
-                // Save Order and Visibility Settings
                 localStorage.setItem('userGamePrefs', JSON.stringify(tempPrefs));
                 
-                // Save and apply Hide Redeemed Setting
                 const isHidden = hideRedeemedToggle.checked;
                 localStorage.setItem('hideRedeemed', isHidden);
                 if (isHidden) {
@@ -710,7 +748,6 @@
                 const isRedeemed = clickedCodes.includes(codeData.code);
                 
                 const codeItem = document.createElement('div');
-                // Include 'is-redeemed' class if it was previously clicked so it can be dynamically hidden by CSS
                 codeItem.className = `code-item ${isRedeemed ? 'is-redeemed' : ''}`;
                 
                 const headerContainer = document.createElement('div');
@@ -788,12 +825,16 @@
                 
                 description.innerHTML = currencyIcon + descText;
 
+                const separator = document.createElement('hr');
+                separator.className = 'code-separator';
+
                 const addedAt = document.createElement('div');
                 addedAt.className = 'added-at';
-                addedAt.innerHTML = `<i class="fas fa-gift"></i> Active Code`;
+                addedAt.innerHTML = `<span class="status-indicator"></span> Active Code`;
                 
                 codeItem.appendChild(headerContainer);
                 codeItem.appendChild(description);
+                codeItem.appendChild(separator);
                 codeItem.appendChild(addedAt);
                 
                 section.appendChild(codeItem);
