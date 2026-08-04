@@ -24,6 +24,7 @@ The app dynamically fetches codes for the following titles using the [Ennead API
 ---
 
 ## ✨ Key Features
+![Screenshot](assets/newscreenshot.jpg)
 
 ### 🎨 UI & Design
 - **Glassmorphism Aesthetics:** Clean, modern interface with blurred backgrounds and smooth transitions.
